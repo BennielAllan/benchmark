@@ -1,0 +1,22 @@
+services:
+    vllm:
+        restart: unless-stopped
+        network_mode: host
+        container_name: genai-perf
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: all
+                          capabilities:
+                              - gpu
+        volumes:
+            - /data/models:/workspace/models
+        image: uhub.service.ucloud.cn/umirror/tritonserver:25.04-py3-sdk
+        entrypoint:
+            - /bin/bash
+        working_dir: /workspace/genai-perf
+        command:
+              - "-c"
+              - sleep 1h
