@@ -1,0 +1,24 @@
+Connecting to host 47.121.185.46, port 5201
+[  5] local 172.20.90.92 port 45846 connected to 47.121.185.46 port 5201
+[  7] local 172.20.90.92 port 45862 connected to 47.121.185.46 port 5201
+[ ID][Role] Interval           Transfer     Bitrate         Retr  Cwnd
+[  5][TX-C]   0.00-10.01  sec  13.7 MBytes  11.5 Mbits/sec    0    525 KBytes       
+[  7][RX-C]   0.00-10.01  sec  0.00 Bytes  0.00 bits/sec                  
+[  5][TX-C]  10.01-20.01  sec  0.00 Bytes  0.00 bits/sec    0    525 KBytes       
+[  7][RX-C]  10.01-20.01  sec  0.00 Bytes  0.00 bits/sec                  
+[  5][TX-C]  20.01-30.01  sec  0.00 Bytes  0.00 bits/sec    0    525 KBytes       
+[  7][RX-C]  20.01-30.01  sec  0.00 Bytes  0.00 bits/sec                  
+[  5][TX-C]  30.01-40.01  sec  0.00 Bytes  0.00 bits/sec    0    525 KBytes       
+[  7][RX-C]  30.01-40.01  sec  0.00 Bytes  0.00 bits/sec                  
+[  5][TX-C]  40.01-50.01  sec  0.00 Bytes  0.00 bits/sec    0    525 KBytes       
+[  7][RX-C]  40.01-50.01  sec  0.00 Bytes  0.00 bits/sec                  
+[  5][TX-C]  50.01-60.01  sec  0.00 Bytes  0.00 bits/sec    0    525 KBytes       
+[  7][RX-C]  50.01-60.01  sec  0.00 Bytes  0.00 bits/sec                  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID][Role] Interval           Transfer     Bitrate         Retr
+[  5][TX-C]   0.00-60.01  sec  13.7 MBytes  1.91 Mbits/sec    0             sender
+[  5][TX-C]   0.00-60.03  sec  0.00 Bytes  0.00 bits/sec                  receiver
+[  7][RX-C]   0.00-60.01  sec  6.88 MBytes   961 Kbits/sec  337             sender
+[  7][RX-C]   0.00-60.03  sec  0.00 Bytes  0.00 bits/sec                  receiver
+
+iperf Done.

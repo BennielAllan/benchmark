@@ -1,0 +1,15 @@
+Connecting to host 47.121.185.46, port 5201
+[  5] local 172.20.90.92 port 35364 connected to 47.121.185.46 port 5201
+[ ID] Interval           Transfer     Bitrate         Retr  Cwnd
+[  5]   0.00-10.00  sec   147 MBytes   123 Mbits/sec   11    452 KBytes       
+[  5]  10.00-20.00  sec   119 MBytes  99.5 Mbits/sec   61    379 KBytes       
+[  5]  20.00-30.00  sec   119 MBytes  99.8 Mbits/sec   67    356 KBytes       
+[  5]  30.00-40.00  sec   119 MBytes   100 Mbits/sec    0    474 KBytes       
+[  5]  40.00-50.00  sec   108 MBytes  90.2 Mbits/sec    0    516 KBytes       
+[  5]  50.00-60.00  sec   124 MBytes   104 Mbits/sec    0    522 KBytes       
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-60.00  sec   735 MBytes   103 Mbits/sec  139             sender
+[  5]   0.00-60.02  sec   721 MBytes   101 Mbits/sec                  receiver
+
+iperf Done.

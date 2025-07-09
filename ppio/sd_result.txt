@@ -1,0 +1,4 @@
+请输入像素值：task 1
+real_time: .01
+task 2
+real_time: .

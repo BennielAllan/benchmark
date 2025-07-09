@@ -1,0 +1,16 @@
+Connecting to host 47.121.185.46, port 5201
+Reverse mode, remote host 47.121.185.46 is sending
+[  5] local 172.20.90.92 port 47148 connected to 47.121.185.46 port 5201
+[ ID] Interval           Transfer     Bitrate
+[  5]   0.00-10.00  sec  4.43 MBytes  3.71 Mbits/sec                  
+[  5]  10.00-20.00  sec  4.01 MBytes  3.36 Mbits/sec                  
+[  5]  20.00-30.00  sec  4.02 MBytes  3.37 Mbits/sec                  
+[  5]  30.00-40.00  sec  4.03 MBytes  3.38 Mbits/sec                  
+[  5]  40.00-50.00  sec  4.03 MBytes  3.38 Mbits/sec                  
+[  5]  50.00-60.00  sec  4.02 MBytes  3.37 Mbits/sec                  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Retr
+[  5]   0.00-60.02  sec  26.2 MBytes  3.67 Mbits/sec  1887             sender
+[  5]   0.00-60.00  sec  24.5 MBytes  3.43 Mbits/sec                  receiver
+
+iperf Done.
