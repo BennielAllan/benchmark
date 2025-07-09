@@ -53,14 +53,16 @@ retry "pip install -r requirements.txt" "安装测试脚本依赖失败" || exit
 retry "pip install vllm" "安装 vllm 失败" || exit 1
 # 下载模型
 sudo apt update && sudo apt install -y git-lfs
-retry "cd $DATA_DIR && git clone https://www.modelscope.cn/deepseek-ai/DeepSeek-R1-0528-Qwen3-8B.git" "下载 DeepSeek-R1-0528-Qwen3-8B 模型失败" || exit 1
+retry "(cd $DATA_DIR && git clone https://www.modelscope.cn/deepseek-ai/DeepSeek-R1-0528-Qwen3-8B.git)" "下载 DeepSeek-R1-0528-Qwen3-8B 模型失败" || exit 1
 # 启动模型
-vllm serve $DATA_DIR/DeepSeek-R1-0528-Qwen3-8B/ --served-model-name deepseek-r1 -tp 1 --max-model-len 32768 --max-num-seqs 4 &
+vllm serve $DATA_DIR/DeepSeek-R1-0528-Qwen3-8B/ --served-model-name deepseek-r1 -tp 1 --max-model-len 32768 --max-num-seqs 4 > /dev/null 2>&1 &
+# 保存进程ID以便后续停止
+VLLM_PID=$!
 # 测试
 python bench_serve.py \
     --backend vllm \
     --model deepseek-r1 \
-    --tokenizer /root/DeepSeek-R1-0528-Qwen3-8B \
+    --tokenizer $DATA_DIR/DeepSeek-R1-0528-Qwen3-8B \
     --request-rate inf \
     --num-prompts 32 \
     --dataset-name random \
@@ -72,6 +74,8 @@ python bench_serve.py \
     --port 8000 \
     --seed 42 \
     | tee $CLOUD_NAME/reasoning_result.txt
+# 关闭模型服务
+kill $VLLM_PID
 
 ########## 测试文生图速度 ##########
 # 创建新的虚拟环境
@@ -80,12 +84,16 @@ conda activate sd
 # 安装xformers
 retry "pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu126" "安装xformers失败" || exit 1
 # 下载 stable diffusion
-retry "cd $DATA_DIR && git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git" "下载stable diffusion失败" || exit 1
+retry "(cd $DATA_DIR && git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git)" "下载stable diffusion失败" || exit 1
 retry "pip install -r $DATA_DIR/stable-diffusion-webui/requirements.txt" "安装stable diffusion失败" || exit 1
 # 运行 sd
-sudo -u ubuntu bash -c "cd $DATA_DIR/stable-diffusion-webui && python launch.py --xformers --listen --api &"
+python $DATA_DIR/stable-diffusion-webui/launch.py --xformers --listen --api > /dev/null 2>&1 &
+# 保存进程ID以便后续停止
+SD_PID=$!
 # 测试
-echo 512 | python test_sd.py 512 | tee $CLOUD_NAME/sd_result.txt
+echo 512 | python test_sd.py | tee $CLOUD_NAME/sd_result.txt
+# 关闭 sd 服务
+kill $SD_PID
 
 ########## 测试机器性能 ##########
 # 测试 CPU 性能
