@@ -37,16 +37,16 @@ retry() {
 retry "wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" "下载 Miniconda 安装脚本失败" || exit 1
 # 运行安装脚本，问是否都选择是，安装目录指定位置：/home/ubuntu/miniconda3
 chmod +x Miniconda3-latest-Linux-x86_64.sh
-retry "bash Miniconda3-latest-Linux-x86_64.sh -b -p /home/ubuntu/miniconda3 && break" "Miniconda 安装失败" || exit 1
+retry "bash Miniconda3-latest-Linux-x86_64.sh -b -p /home/ubuntu/miniconda3" "Miniconda 安装失败" || exit 1
 # 安装完成若没有进入到Base虚拟环境
 source /home/ubuntu/miniconda3/bin/activate
+
+########## 测试推理速度 ##########
 # 创建并进入虚拟环境
-retry "conda create -n r1 python=3.11 -y && break" "创建虚拟环境失败" || exit 1
+retry "conda create -n r1 python=3.11 -y" "创建虚拟环境失败" || exit 1
 conda activate r1
 # 安装vllm
 retry "pip install vllm" "安装 vllm 失败" || exit 1
-
-########## 测试推理速度 ##########
 # 下载模型
 sudo apt update && sudo apt install -y git-lfs
 retry "git clone https://www.modelscope.cn/deepseek-ai/DeepSeek-R1-0528-Qwen3-8B.git $DATA_DIR" "下载 DeepSeek-R1-0528-Qwen3-8B 模型失败" || exit 1
