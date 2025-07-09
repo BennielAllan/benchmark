@@ -42,12 +42,13 @@ chmod +x Miniconda3-latest-Linux-x86_64.sh
 retry "bash Miniconda3-latest-Linux-x86_64.sh -b -p /home/ubuntu/miniconda3" "Miniconda 安装失败" || exit 1
 # 安装完成若没有进入到Base虚拟环境
 source /home/ubuntu/miniconda3/bin/activate
-retry "pip install -r requirements.txt" "安装测试脚本依赖失败" || exit 1
 
 ########## 测试推理速度 ##########
 # 创建并进入虚拟环境
 retry "conda create -n r1 python=3.11 -y" "创建虚拟环境失败" || exit 1
 conda activate r1
+# 安装测试脚本依赖
+retry "pip install -r requirements.txt" "安装测试脚本依赖失败" || exit 1
 # 安装vllm
 retry "pip install vllm" "安装 vllm 失败" || exit 1
 # 下载模型
