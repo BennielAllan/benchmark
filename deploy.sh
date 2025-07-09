@@ -8,7 +8,7 @@ fi
 # 数据盘位置
 CLOUD_NAME="$1"
 DATA_DIR="$2"
-
+# 存放测试结果
 mkdir "$CLOUD_NAME"
 
 # 重试函数，参数：命令 and 提示信息
@@ -42,6 +42,7 @@ chmod +x Miniconda3-latest-Linux-x86_64.sh
 retry "bash Miniconda3-latest-Linux-x86_64.sh -b -p /home/ubuntu/miniconda3" "Miniconda 安装失败" || exit 1
 # 安装完成若没有进入到Base虚拟环境
 source /home/ubuntu/miniconda3/bin/activate
+retry "pip install -r requirements.txt" "安装测试脚本依赖失败" || exit 1
 
 ########## 测试推理速度 ##########
 # 创建并进入虚拟环境
