@@ -1,0 +1,15 @@
+Connecting to host 47.121.185.46, port 5201
+[  5] local 172.17.0.9 port 48745 connected to 47.121.185.46 port 5201
+[ ID] Interval           Transfer     Bitrate         Total Datagrams
+[  5]   0.00-10.00  sec  1.16 GBytes  1000 Mbits/sec  973513  
+[  5]  10.00-20.00  sec  1.16 GBytes  1000 Mbits/sec  973499  
+[  5]  20.00-30.00  sec  1.16 GBytes  1000 Mbits/sec  973475  
+[  5]  30.00-40.00  sec  1.16 GBytes  1.00 Gbits/sec  973563  
+[  5]  40.00-50.00  sec  1.16 GBytes  1.00 Gbits/sec  973539  
+[  5]  50.00-60.00  sec  1.16 GBytes  1000 Mbits/sec  973503  
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bitrate         Jitter    Lost/Total Datagrams
+[  5]   0.00-60.00  sec  6.98 GBytes  1000 Mbits/sec  0.000 ms  0/5841092 (0%)  sender
+[  5]   0.00-60.34  sec   139 MBytes  19.4 Mbits/sec  0.039 ms  5727388/5841074 (98%)  receiver
+
+iperf Done.
