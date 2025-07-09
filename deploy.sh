@@ -35,7 +35,12 @@ retry() {
 }
 
 ########## 环境部署 ##########
-# 获取安装脚本
+apt update
+# 安装libgl1
+retry "apt install -y libgl1" "安装libGL.so.1失败" || exit 1
+# 安装netcat
+retry "apt install -y netcat" "安装netcat失败" || exit 1
+# 获取miniconda3安装脚本
 retry "wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" "下载 Miniconda 安装脚本失败" || exit 1
 # 运行安装脚本，问是否都选择是，安装目录指定位置：/home/ubuntu/miniconda3
 chmod +x Miniconda3-latest-Linux-x86_64.sh
@@ -52,7 +57,7 @@ retry "pip install -r requirements.txt" "安装测试脚本依赖失败" || exit
 # 安装vllm
 retry "pip install vllm" "安装 vllm 失败" || exit 1
 # 下载模型
-sudo apt update && sudo apt install -y git-lfs
+apt install -y git-lfs
 retry "(cd $DATA_DIR && git clone https://www.modelscope.cn/deepseek-ai/DeepSeek-R1-0528-Qwen3-8B.git)" "下载 DeepSeek-R1-0528-Qwen3-8B 模型失败" || exit 1
 # 启动模型
 vllm serve $DATA_DIR/DeepSeek-R1-0528-Qwen3-8B/ --served-model-name deepseek-r1 -tp 1 --max-model-len 32768 --max-num-seqs 4 > /dev/null 2>&1 &
@@ -105,20 +110,21 @@ for i in {1..6000}; do
     sleep 1
 done
 # 测试
+apt install -y time
 echo 512 | python test_sd.py | tee $CLOUD_NAME/sd_result.txt
 # 关闭 sd 服务
 kill $SD_PID
 
 ########## 测试机器性能 ##########
 # 测试 CPU 性能
-retry "sudo apt install -y sysbench" "安装sysbench失败" || exit 1
+retry "apt install -y sysbench" "安装sysbench失败" || exit 1
 ## 测试单线程CPU计算能力
 sysbench cpu --cpu-max-prime=20000 --threads=1 run | tee $CLOUD_NAME/cpu_single_thread.txt
 ## 测试多线程CPU计算能力
 sysbench cpu --cpu-max-prime=20000 --threads=$(nproc) run | tee $CLOUD_NAME/cpu_multi_thread.txt
 
 # 测试 IO 性能
-retry "sudo apt install -y fio" "安装fio失败" || exit 1
+retry "apt install -y fio" "安装fio失败" || exit 1
 ## 随机读测试
 fio --name=randread --ioengine=libaio --bs=4k --rw=randread --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_randread.txt
 ## 随机写测试
@@ -131,7 +137,7 @@ fio --name=seqwrite --ioengine=libaio --bs=1M --rw=write --size=2G --numjobs=1 -
 fio --name=mixed --ioengine=libaio --bs=4k --rw=randrw --rwmixread=70 --size=1G --numjobs=4 --iodepth=16 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_mixed.txt
 
 # 测试网络性能
-retry "sudo DEBIAN_FRONTEND=noninteractive apt install -y iperf3" "安装iperf3失败" || exit 1
+retry "DEBIAN_FRONTEND=noninteractive apt install -y iperf3" "安装iperf3失败" || exit 1
 ## TCP带宽测试（单连接）
 iperf3 -c 47.121.185.46 -t 60 -i 10 | tee $CLOUD_NAME/net_tcp_single.txt
 ## TCP带宽测试（多连接）
