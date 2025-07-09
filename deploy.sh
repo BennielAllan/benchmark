@@ -58,6 +58,13 @@ retry "(cd $DATA_DIR && git clone https://www.modelscope.cn/deepseek-ai/DeepSeek
 vllm serve $DATA_DIR/DeepSeek-R1-0528-Qwen3-8B/ --served-model-name deepseek-r1 -tp 1 --max-model-len 32768 --max-num-seqs 4 > /dev/null 2>&1 &
 # 保存进程ID以便后续停止
 VLLM_PID=$!
+# 等待端口8000开放
+for i in {1..6000}; do
+    if nc -z 127.0.0.1 8000; then
+        break
+    fi
+    sleep 1
+    done
 # 测试
 python bench_serve.py \
     --backend vllm \
@@ -90,6 +97,13 @@ retry "pip install -r $DATA_DIR/stable-diffusion-webui/requirements.txt" "安装
 python $DATA_DIR/stable-diffusion-webui/launch.py --xformers --listen --api > /dev/null 2>&1 &
 # 保存进程ID以便后续停止
 SD_PID=$!
+# 等待端口7860开放
+for i in {1..6000}; do
+    if nc -z 127.0.0.1 7860; then
+        break
+    fi
+    sleep 1
+done
 # 测试
 echo 512 | python test_sd.py | tee $CLOUD_NAME/sd_result.txt
 # 关闭 sd 服务
@@ -106,15 +120,15 @@ sysbench cpu --cpu-max-prime=20000 --threads=$(nproc) run | tee $CLOUD_NAME/cpu_
 # 测试 IO 性能
 retry "sudo apt install -y fio" "安装fio失败" || exit 1
 ## 随机读测试
-fio --name=randread --ioengine=libaio --bs=4k --rw=randread --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting | tee $CLOUD_NAME/io_randread.txt
+fio --name=randread --ioengine=libaio --bs=4k --rw=randread --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_randread.txt
 ## 随机写测试
-fio --name=randwrite --ioengine=libaio --bs=4k --rw=randwrite --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting | tee $CLOUD_NAME/io_randwrite.txt
+fio --name=randwrite --ioengine=libaio --bs=4k --rw=randwrite --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_randwrite.txt
 ## 顺序读测试
-fio --name=seqread --ioengine=libaio --bs=1M --rw=read --size=2G --numjobs=1 --iodepth=1 --runtime=60 --group_reporting | tee $CLOUD_NAME/io_seqread.txt
+fio --name=seqread --ioengine=libaio --bs=1M --rw=read --size=2G --numjobs=1 --iodepth=1 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_seqread.txt
 ## 顺序写测试
-fio --name=seqwrite --ioengine=libaio --bs=1M --rw=write --size=2G --numjobs=1 --iodepth=1 --runtime=60 --group_reporting | tee $CLOUD_NAME/io_seqwrite.txt
+fio --name=seqwrite --ioengine=libaio --bs=1M --rw=write --size=2G --numjobs=1 --iodepth=1 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_seqwrite.txt
 ## 混合随机读写测试
-fio --name=mixed --ioengine=libaio --bs=4k --rw=randrw --rwmixread=70 --size=1G --numjobs=4 --iodepth=16 --runtime=60 --group_reporting | tee $CLOUD_NAME/io_mixed.txt
+fio --name=mixed --ioengine=libaio --bs=4k --rw=randrw --rwmixread=70 --size=1G --numjobs=4 --iodepth=16 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_mixed.txt
 
 # 测试网络性能
 retry "sudo DEBIAN_FRONTEND=noninteractive apt install -y iperf3" "安装iperf3失败" || exit 1
