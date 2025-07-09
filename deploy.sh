@@ -51,7 +51,7 @@ conda activate r1
 retry "pip install vllm" "安装 vllm 失败" || exit 1
 # 下载模型
 sudo apt update && sudo apt install -y git-lfs
-retry "git clone https://www.modelscope.cn/deepseek-ai/DeepSeek-R1-0528-Qwen3-8B.git $DATA_DIR" "下载 DeepSeek-R1-0528-Qwen3-8B 模型失败" || exit 1
+retry "cd $DATA_DIR && git clone https://www.modelscope.cn/deepseek-ai/DeepSeek-R1-0528-Qwen3-8B.git" "下载 DeepSeek-R1-0528-Qwen3-8B 模型失败" || exit 1
 # 启动模型
 vllm serve $DATA_DIR/DeepSeek-R1-0528-Qwen3-8B/ --served-model-name deepseek-r1 -tp 1 --max-model-len 32768 --max-num-seqs 4 &
 # 测试
@@ -78,7 +78,7 @@ conda activate sd
 # 安装xformers
 retry "pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu126" "安装xformers失败" || exit 1
 # 下载 stable diffusion
-retry "git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git $DATA_DIR" "下载stable diffusion失败" || exit 1
+retry "cd $DATA_DIR && git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git" "下载stable diffusion失败" || exit 1
 retry "pip install -r $DATA_DIR/stable-diffusion-webui/requirements.txt" "安装stable diffusion失败" || exit 1
 # 运行 sd
 sudo -u ubuntu bash -c "cd $DATA_DIR/stable-diffusion-webui && python launch.py --xformers --listen --api &"
