@@ -9,6 +9,8 @@ fi
 CLOUD_NAME="$1"
 DATA_DIR="$2"
 
+mkdir "$CLOUD_NAME"
+
 # 重试函数，参数：命令 and 提示信息
 retry() {
     local cmd="$1"
@@ -67,7 +69,7 @@ python bench_serve.py \
     --host 127.0.0.1 \
     --port 8000 \
     --seed 42 \
-    | tee reasoning_result.txt
+    | tee $CLOUD_NAME/reasoning_result.txt
 
 ########## 测试文生图速度 ##########
 # 创建新的虚拟环境
@@ -81,38 +83,38 @@ retry "pip install -r $DATA_DIR/stable-diffusion-webui/requirements.txt" "安装
 # 运行 sd
 sudo -u ubuntu bash -c "cd $DATA_DIR/stable-diffusion-webui && python launch.py --xformers --listen --api &"
 # 测试
-echo 512 | python test_sd.py 512 | tee sd_result.txt
+echo 512 | python test_sd.py 512 | tee $CLOUD_NAME/sd_result.txt
 
 ########## 测试机器性能 ##########
 # 测试 CPU 性能
 retry "sudo apt install -y sysbench" "安装sysbench失败" || exit 1
 ## 测试单线程CPU计算能力
-sysbench cpu --cpu-max-prime=20000 --threads=1 run || tee cpu_single_thread.txt
+sysbench cpu --cpu-max-prime=20000 --threads=1 run | tee $CLOUD_NAME/cpu_single_thread.txt
 ## 测试多线程CPU计算能力
-sysbench cpu --cpu-max-prime=20000 --threads=$(nproc) run || tee cpu_multi_thread.txt
+sysbench cpu --cpu-max-prime=20000 --threads=$(nproc) run | tee $CLOUD_NAME/cpu_multi_thread.txt
 
 # 测试 IO 性能
 retry "sudo apt install -y fio" "安装fio失败" || exit 1
 ## 随机读测试
-fio --name=randread --ioengine=libaio --bs=4k --rw=randread --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting || tee io_randread.txt
+fio --name=randread --ioengine=libaio --bs=4k --rw=randread --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting | tee $CLOUD_NAME/io_randread.txt
 ## 随机写测试
-fio --name=randwrite --ioengine=libaio --bs=4k --rw=randwrite --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting || tee io_randwrite.txt
+fio --name=randwrite --ioengine=libaio --bs=4k --rw=randwrite --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting | tee $CLOUD_NAME/io_randwrite.txt
 ## 顺序读测试
-fio --name=seqread --ioengine=libaio --bs=1M --rw=read --size=2G --numjobs=1 --iodepth=1 --runtime=60 --group_reporting || tee io_seqread.txt
+fio --name=seqread --ioengine=libaio --bs=1M --rw=read --size=2G --numjobs=1 --iodepth=1 --runtime=60 --group_reporting | tee $CLOUD_NAME/io_seqread.txt
 ## 顺序写测试
-fio --name=seqwrite --ioengine=libaio --bs=1M --rw=write --size=2G --numjobs=1 --iodepth=1 --runtime=60 --group_reporting || tee io_seqwrite.txt
+fio --name=seqwrite --ioengine=libaio --bs=1M --rw=write --size=2G --numjobs=1 --iodepth=1 --runtime=60 --group_reporting | tee $CLOUD_NAME/io_seqwrite.txt
 ## 混合随机读写测试
-fio --name=mixed --ioengine=libaio --bs=4k --rw=randrw --rwmixread=70 --size=1G --numjobs=4 --iodepth=16 --runtime=60 --group_reporting || tee io_mixed.txt
+fio --name=mixed --ioengine=libaio --bs=4k --rw=randrw --rwmixread=70 --size=1G --numjobs=4 --iodepth=16 --runtime=60 --group_reporting | tee $CLOUD_NAME/io_mixed.txt
 
 # 测试网络性能
 retry "sudo DEBIAN_FRONTEND=noninteractive apt install -y iperf3" "安装iperf3失败" || exit 1
 ## TCP带宽测试（单连接）
-iperf3 -c 47.121.185.46 -t 60 -i 10 || tee net_tcp_single.txt
+iperf3 -c 47.121.185.46 -t 60 -i 10 | tee $CLOUD_NAME/net_tcp_single.txt
 ## TCP带宽测试（多连接）
-iperf3 -c 47.121.185.46 -t 60 -P 4 -i 10 || tee net_tcp_multi.txt
+iperf3 -c 47.121.185.46 -t 60 -P 4 -i 10 | tee $CLOUD_NAME/net_tcp_multi.txt
 ## TCP下载带宽
-iperf3 -c 47.121.185.46 -R -t 60 -i 10 || tee net_tcp_download.txt
+iperf3 -c 47.121.185.46 -R -t 60 -i 10 | tee $CLOUD_NAME/net_tcp_download.txt
 ## TCP双向同时测试
-iperf3 -c 47.121.185.46 --bidir -t 60 -i 10 || tee net_tcp_bidir.txt
+iperf3 -c 47.121.185.46 --bidir -t 60 -i 10 | tee $CLOUD_NAME/net_tcp_bidir.txt
 ## UDP带宽和丢包测试
-iperf3 -c 47.121.185.46 -u -b 1G -t 60 -i 10 || tee net_udp.txt
+iperf3 -c 47.121.185.46 -u -b 1G -t 60 -i 10 | tee $CLOUD_NAME/net_udp.txt
