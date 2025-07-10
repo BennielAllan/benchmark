@@ -34,6 +34,7 @@ retry() {
     done
 }
 
+apt update
 ########## 测试机器性能 ##########
 # 测试 CPU 性能
 retry "apt install -y sysbench" "安装sysbench失败" || exit 1
@@ -69,7 +70,6 @@ iperf3 -c 47.121.185.46 --bidir -t 60 -i 10 | tee $CLOUD_NAME/net_tcp_bidir.txt
 iperf3 -c 47.121.185.46 -u -b 1G -t 60 -i 10 | tee $CLOUD_NAME/net_udp.txt
 
 ########## 环境部署 ##########
-apt update
 # 安装libgl1
 retry "apt install -y libgl1" "安装libGL.so.1失败" || exit 1
 # 安装netcat
