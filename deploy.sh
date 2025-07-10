@@ -74,13 +74,13 @@ apt update
 retry "apt install -y libgl1" "安装libGL.so.1失败" || exit 1
 # 安装netcat
 retry "apt install -y netcat" "安装netcat失败" || exit 1
-# 获取miniconda3安装脚本
-retry "wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" "下载 Miniconda 安装脚本失败" || exit 1
-# 运行安装脚本，问是否都选择是，安装目录指定位置：/home/ubuntu/miniconda3
-chmod +x Miniconda3-latest-Linux-x86_64.sh
-retry "bash Miniconda3-latest-Linux-x86_64.sh -b -p /home/ubuntu/miniconda3" "Miniconda 安装失败" || exit 1
-# 安装完成若没有进入到Base虚拟环境
-source /home/ubuntu/miniconda3/bin/activate
+# # 获取miniconda3安装脚本
+# retry "wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" "下载 Miniconda 安装脚本失败" || exit 1
+# # 运行安装脚本，问是否都选择是，安装目录指定位置：/home/ubuntu/miniconda3
+# chmod +x Miniconda3-latest-Linux-x86_64.sh
+# retry "bash Miniconda3-latest-Linux-x86_64.sh -b -p /home/ubuntu/miniconda3" "Miniconda 安装失败" || exit 1
+# # 安装完成若没有进入到Base虚拟环境
+# source /home/ubuntu/miniconda3/bin/activate
 
 ########## 测试推理速度 ##########
 # 创建并进入虚拟环境
