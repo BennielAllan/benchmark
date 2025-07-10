@@ -3,7 +3,7 @@ apt update
 apt install -y git
 apt install -y sed
 
-git clone https://gh-proxy.com/https://github.com/wanhebin/clash-for-linux.git
+git clone https://gh-proxy.com/https://github.com/wnlen/clash-for-linux.git
 
 cd clash-for-linux
 
