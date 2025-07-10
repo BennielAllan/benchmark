@@ -34,6 +34,40 @@ retry() {
     done
 }
 
+########## 测试机器性能 ##########
+# 测试 CPU 性能
+retry "apt install -y sysbench" "安装sysbench失败" || exit 1
+## 测试单线程CPU计算能力
+sysbench cpu --cpu-max-prime=20000 --threads=1 run | tee $CLOUD_NAME/cpu_single_thread.txt
+## 测试多线程CPU计算能力
+sysbench cpu --cpu-max-prime=20000 --threads=$(nproc) run | tee $CLOUD_NAME/cpu_multi_thread.txt
+
+# 测试 IO 性能
+retry "apt install -y fio" "安装fio失败" || exit 1
+## 随机读测试
+fio --name=randread --ioengine=libaio --bs=4k --rw=randread --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_randread.txt
+## 随机写测试
+fio --name=randwrite --ioengine=libaio --bs=4k --rw=randwrite --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_randwrite.txt
+## 顺序读测试
+fio --name=seqread --ioengine=libaio --bs=1M --rw=read --size=2G --numjobs=1 --iodepth=1 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_seqread.txt
+## 顺序写测试
+fio --name=seqwrite --ioengine=libaio --bs=1M --rw=write --size=2G --numjobs=1 --iodepth=1 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_seqwrite.txt
+## 混合随机读写测试
+fio --name=mixed --ioengine=libaio --bs=4k --rw=randrw --rwmixread=70 --size=1G --numjobs=4 --iodepth=16 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_mixed.txt
+
+# 测试网络性能
+retry "DEBIAN_FRONTEND=noninteractive apt install -y iperf3" "安装iperf3失败" || exit 1
+## TCP带宽测试（单连接）
+iperf3 -c 47.121.185.46 -t 60 -i 10 | tee $CLOUD_NAME/net_tcp_single.txt
+## TCP带宽测试（多连接）
+iperf3 -c 47.121.185.46 -t 60 -P 4 -i 10 | tee $CLOUD_NAME/net_tcp_multi.txt
+## TCP下载带宽
+iperf3 -c 47.121.185.46 -R -t 60 -i 10 | tee $CLOUD_NAME/net_tcp_download.txt
+## TCP双向同时测试
+iperf3 -c 47.121.185.46 --bidir -t 60 -i 10 | tee $CLOUD_NAME/net_tcp_bidir.txt
+## UDP带宽和丢包测试
+iperf3 -c 47.121.185.46 -u -b 1G -t 60 -i 10 | tee $CLOUD_NAME/net_udp.txt
+
 ########## 环境部署 ##########
 apt update
 # 安装libgl1
@@ -119,37 +153,3 @@ apt install -y time
 echo 512 | python test_sd.py | tee $CLOUD_NAME/sd_result.txt
 # 关闭 sd 服务
 kill $SD_PID
-
-########## 测试机器性能 ##########
-# 测试 CPU 性能
-retry "apt install -y sysbench" "安装sysbench失败" || exit 1
-## 测试单线程CPU计算能力
-sysbench cpu --cpu-max-prime=20000 --threads=1 run | tee $CLOUD_NAME/cpu_single_thread.txt
-## 测试多线程CPU计算能力
-sysbench cpu --cpu-max-prime=20000 --threads=$(nproc) run | tee $CLOUD_NAME/cpu_multi_thread.txt
-
-# 测试 IO 性能
-retry "apt install -y fio" "安装fio失败" || exit 1
-## 随机读测试
-fio --name=randread --ioengine=libaio --bs=4k --rw=randread --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_randread.txt
-## 随机写测试
-fio --name=randwrite --ioengine=libaio --bs=4k --rw=randwrite --size=1G --numjobs=4 --iodepth=32 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_randwrite.txt
-## 顺序读测试
-fio --name=seqread --ioengine=libaio --bs=1M --rw=read --size=2G --numjobs=1 --iodepth=1 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_seqread.txt
-## 顺序写测试
-fio --name=seqwrite --ioengine=libaio --bs=1M --rw=write --size=2G --numjobs=1 --iodepth=1 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_seqwrite.txt
-## 混合随机读写测试
-fio --name=mixed --ioengine=libaio --bs=4k --rw=randrw --rwmixread=70 --size=1G --numjobs=4 --iodepth=16 --runtime=60 --group_reporting --unlink=1 | tee $CLOUD_NAME/io_mixed.txt
-
-# 测试网络性能
-retry "DEBIAN_FRONTEND=noninteractive apt install -y iperf3" "安装iperf3失败" || exit 1
-## TCP带宽测试（单连接）
-iperf3 -c 47.121.185.46 -t 60 -i 10 | tee $CLOUD_NAME/net_tcp_single.txt
-## TCP带宽测试（多连接）
-iperf3 -c 47.121.185.46 -t 60 -P 4 -i 10 | tee $CLOUD_NAME/net_tcp_multi.txt
-## TCP下载带宽
-iperf3 -c 47.121.185.46 -R -t 60 -i 10 | tee $CLOUD_NAME/net_tcp_download.txt
-## TCP双向同时测试
-iperf3 -c 47.121.185.46 --bidir -t 60 -i 10 | tee $CLOUD_NAME/net_tcp_bidir.txt
-## UDP带宽和丢包测试
-iperf3 -c 47.121.185.46 -u -b 1G -t 60 -i 10 | tee $CLOUD_NAME/net_udp.txt
