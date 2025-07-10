@@ -96,8 +96,13 @@ conda activate sd
 # 安装xformers
 retry "pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu126" "安装xformers失败" || exit 1
 # 下载 stable diffusion
-retry "(cd $DATA_DIR && git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git)" "下载stable diffusion失败" || exit 1
+retry "(cd $DATA_DIR && git clone https://gh-proxy.com/https://github.com/AUTOMATIC1111/stable-diffusion-webui.git)" "下载stable diffusion失败" || exit 1
 retry "pip install -r $DATA_DIR/stable-diffusion-webui/requirements.txt" "安装stable diffusion失败" || exit 1
+# 创建模型目录
+mkdir -p $DATA_DIR/stable-diffusion-webui/models/Stable-diffusion
+# 下载基础模型 SD 1.5
+echo "正在下载Stable Diffusion 1.5模型..."
+retry "wget -O $DATA_DIR/stable-diffusion-webui/models/Stable-diffusion/sd-v1-5-pruned.safetensors 'https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.safetensors'" "下载SD1.5模型失败" || exit 1
 # 运行 sd
 python $DATA_DIR/stable-diffusion-webui/launch.py --xformers --listen --api > /dev/null 2>&1 &
 # 保存进程ID以便后续停止
@@ -109,6 +114,8 @@ for i in {1..6000}; do
     fi
     sleep 1
 done
+# 额外等待几秒确保模型加载完成
+sleep 10
 # 测试
 apt install -y time
 echo 512 | python test_sd.py | tee $CLOUD_NAME/sd_result.txt
